@@ -4,9 +4,12 @@ using UnityEngine;
 
 public class Attack : MonoBehaviour
 {
-
-    //public Camera camera;
-    //Vector3 point;
+    public enum AttackMode
+    {
+        Linear,
+        Parabolic
+    }
+    
     int layerMask;
 
     //bullet variables
@@ -15,23 +18,27 @@ public class Attack : MonoBehaviour
     GameObject instaniatedObj;
 
     public float shootSpeed = 200;
-    Transform cameraTransform;
 
     public BoolVariable startSooting;
+    public AttackMode mode;
+
+    public Vector3 target;
+    public Transform throwPoint;
+    //public GameObject ball;
+    public float speed = 1;
+    public float timeTillHit = 1f;
+    RaycastHit hit;
     void Start()
     {
-        //camera = Camera.main;
-        //cameraTransform = Camera.main.transform;
-        //point = new Vector3(camera.pixelWidth / 2, camera.pixelHeight / 2, 0);
+        
     }
 
     void Update()
     {
         layerMask = 1 << 8;
-        //Ray ray = camera.ScreenPointToRay(point);
-        //RaycastHit hit;
 
-        if (Physics.Raycast(transform.position, transform.forward, layerMask))
+        
+        if (Physics.Raycast(transform.position, transform.forward, out hit, layerMask))
         {
            
             if (startSooting.value==true)
@@ -46,10 +53,39 @@ public class Attack : MonoBehaviour
     }
     void ShootBullet()
     {
+        if (mode==AttackMode.Linear)
+        {
+            instaniatedObj = Instantiate(bulletPrefab, transform.position + transform.forward, Quaternion.Euler(0, 0, 90));
+
+            instaniatedObj.GetComponent<Rigidbody>().velocity = transform.forward * shootSpeed;
+        }
+        else if(mode == AttackMode.Parabolic)
+        {
+            target = hit.transform.position;
+            float xdistance;
+            xdistance = target.x - throwPoint.position.x;
+
+            float ydistance;
+            ydistance = target.y - throwPoint.position.y;
+
+            float throwAngle;
+
+            throwAngle = Mathf.Atan((ydistance + 4.905f * (timeTillHit * timeTillHit)) / xdistance);
+
+            float totalValue = xdistance / (Mathf.Cos(throwAngle) * timeTillHit);
+
+            float xValue, yValue;
+            xValue = totalValue * Mathf.Cos(throwAngle);
+            yValue = totalValue * Mathf.Sin(throwAngle);
+
+            GameObject bulletInstance = Instantiate(bulletPrefab, throwPoint.position, 
+                Quaternion.Euler(new Vector3(0, 0, 0))) as GameObject;
+
+            Rigidbody2D rigid;
+            rigid = bulletInstance.GetComponent<Rigidbody2D>();
+            rigid.velocity = new Vector2(xValue * speed, yValue * speed);
+        }
         
-        instaniatedObj = Instantiate(bulletPrefab, transform.position + transform.forward, Quaternion.Euler(0,0,90)) ;
-        
-        instaniatedObj.GetComponent<Rigidbody>().velocity = transform.forward * shootSpeed;
     }
     private void OnDrawGizmos()
     {
