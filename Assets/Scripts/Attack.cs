@@ -5,55 +5,55 @@ using UnityEngine;
 public class Attack : MonoBehaviour
 {
 
+    //public Camera camera;
+    //Vector3 point;
+    int layerMask;
 
-    public GameObject bulletPrefab;
-    public float shootSpeed = 300;
+    //bullet variables
+    [SerializeField]
+    GameObject bulletPrefab;
+    GameObject instaniatedObj;
 
+    public float shootSpeed = 200;
     Transform cameraTransform;
 
+    public BoolVariable startSooting;
     void Start()
     {
-        cameraTransform = Camera.main.transform;
+        //camera = Camera.main;
+        //cameraTransform = Camera.main.transform;
+        //point = new Vector3(camera.pixelWidth / 2, camera.pixelHeight / 2, 0);
     }
 
     void Update()
     {
+        layerMask = 1 << 8;
+        //Ray ray = camera.ScreenPointToRay(point);
+        //RaycastHit hit;
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Physics.Raycast(transform.position, transform.forward, layerMask))
         {
-            shootBullet();
+           
+            if (startSooting.value==true)
+            {
+                ShootBullet();
+            }
+            else
+            {
+
+            }
         }
     }
-    void shootBullet()
+    void ShootBullet()
     {
-        GameObject tempObj;
-
-        tempObj = Instantiate(bulletPrefab) as GameObject;
-
-        tempObj.transform.position = transform.position + cameraTransform.forward;
-
-        Rigidbody projectile = GetComponent<Rigidbody>();
-
-        projectile.velocity = cameraTransform.forward * shootSpeed;
+        
+        instaniatedObj = Instantiate(bulletPrefab, transform.position + transform.forward, Quaternion.Euler(0,0,90)) ;
+        
+        instaniatedObj.GetComponent<Rigidbody>().velocity = transform.forward * shootSpeed;
+    }
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.blue;
+        Gizmos.DrawRay(transform.position, transform.forward);
     }
 }
-//   private Camera camera;
-//   void Start () {
-//       camera = GetComponent<Camera>();
-//   }
-
-//void Update () {
-//       //if (Input.GetMouseButtonDown(0))
-//       //{
-
-//       //    Vector3 point = new Vector3(camera.pixelWidth/2,camera.pixelHeight/2,0);
-
-//       //    Ray ray = camera.ScreenPointToRay(point);
-//       //    RaycastHit hit; 
-//       //    if(Physics.Raycast(ray, out hit))
-//       //    {
-//       //       
-
-//       //    } 
-//       //}
-//   }

@@ -6,15 +6,15 @@ public class DetectTarget : MonoBehaviour
 
 
     float radius = 10.0F;
-    public BoolVariable targetCaught;
-    public GameObject nearestTarget;
-
+    public BoolVariable startSearching;
+    GameObject nearestTarget;
+    public BoolVariable startShooting;
     int layerMask;
 
     void Start()
     {
-
-        targetCaught.value = false;
+        startShooting.value = false;
+        startSearching.value = true;
     }
 
     void Update()
@@ -23,20 +23,18 @@ public class DetectTarget : MonoBehaviour
 
         NearestTarget();
 
-        
-
+ 
     }
-
 
     void NearestTarget()
     {
-        if (!targetCaught.value)
+        if (startSearching.value)
         {
 
             Collider[] colliders = Physics.OverlapSphere(transform.position, radius, layerMask);
 
             Debug.Log(colliders.Length);
-            if (colliders.Length > 0)
+            if (colliders.Length > 1)
             {
                 nearestTarget = colliders[0].gameObject;
 
@@ -48,37 +46,40 @@ public class DetectTarget : MonoBehaviour
                         nearestTarget.transform.position = colliders[i + 1].gameObject.transform.position;
                     }
                 }
-                StartCoroutine(FacingEnemy(nearestTarget.transform.position)); 
+                FacingEnemy(nearestTarget.transform.position); 
 
+            }
+            else if(colliders.Length == 1)
+            {
+                nearestTarget = colliders[0].gameObject;
+                FacingEnemy(nearestTarget.transform.position);
+            }
+            else
+            {
                 
-                targetCaught.value = true;
-                Debug.Log("caught");
-
             }
 
         }
         else
         {
-            Debug.Log("released");
         }
 
     }
 
-    public IEnumerator FacingEnemy(Vector3 enemyTransform)
+    public void FacingEnemy(Vector3 enemyTransform)
     {
         Vector3 direction = (enemyTransform - transform.position).normalized;
-
         var t = 0f;
-        float timeToMove = 1;
-        while (t < 1)
+        float timeToMove = 1f;
+        while (Vector3.Dot(transform.forward,direction)!=1)
         {
             t += Time.deltaTime / timeToMove;
             transform.forward = Vector3.Lerp(transform.forward, direction, t);
-            yield return null;
         }
 
-        Debug.LogError("obj rotated");
-
+        startShooting.value = true;
+        startSearching.value = false;
+        
     }
     private void OnDrawGizmos()
     {

@@ -14,10 +14,10 @@ public class EnemySpawner : MonoBehaviour {
 
     GameObject enemy;
 
-    public BoolVariable targetCaught;
+    
     void Start () {
         StartCoroutine(EnemySpawnRandom());
-        targetCaught.value = false;
+        
 
     }
 
@@ -30,9 +30,8 @@ public class EnemySpawner : MonoBehaviour {
             
             enemy=Instantiate(prefab, spawnPoints[Random.Range(0, spawnPoints.Length)].position, Quaternion.identity);
             enemy.transform.LookAt(player.transform);
-            Destroy(enemy, 3);
-            yield return new WaitForSeconds(2);
-            targetCaught.value = false;
+            yield return new WaitForSeconds(1);
+            
         }
         
     }

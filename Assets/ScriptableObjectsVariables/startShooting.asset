@@ -8,7 +8,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5d32ed598c132844ea4fb35dea602c3f, type: 3}
-  m_Name: nearestTarget
+  m_Script: {fileID: 11500000, guid: ef8f7c5c7843d324fac31afe76e8831b, type: 3}
+  m_Name: startShooting
   m_EditorClassIdentifier: 
-  value: {x: 0, y: 0, z: 0}
+  value: 1
