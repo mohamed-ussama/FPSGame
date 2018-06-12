@@ -28,13 +28,28 @@ public class Attack : MonoBehaviour
     public float speed = 1;
     public float timeTillHit = 1f;
     RaycastHit hit;
+    List<GameObject> bulletList;
     void Start()
     {
-        
+        bulletList = new List<GameObject>();
+        for (int i = 0; i < 18; i++)
+        {
+            GameObject bulletObj = (GameObject)Instantiate(bulletPrefab);
+            bulletObj.SetActive(false);
+            bulletList.Add(bulletObj);
+        }
     }
 
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            mode = AttackMode.Linear;
+        }
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            mode = AttackMode.Parabolic;
+        }
         layerMask = 1 << 8;
 
         
@@ -53,38 +68,47 @@ public class Attack : MonoBehaviour
     }
     void ShootBullet()
     {
-        if (mode==AttackMode.Linear)
+        for (int i = 0; i < bulletList.Count; i++)
         {
-            instaniatedObj = Instantiate(bulletPrefab, transform.position + transform.forward, Quaternion.Euler(0, 0, 90));
+            if (!bulletList[i].activeInHierarchy)
+            {
+                bulletList[i].transform.position = transform.position + transform.forward;
+                bulletList[i].transform.rotation = Quaternion.Euler(0, 0, 90);
+                bulletList[i].SetActive(true);
+                Rigidbody bulletrig = bulletList[i].GetComponent<Rigidbody>();
+                
+                if (mode == AttackMode.Linear)
+                {
 
-            instaniatedObj.GetComponent<Rigidbody>().velocity = transform.forward * shootSpeed;
+                    bulletrig.velocity = transform.forward * shootSpeed;
+                }
+                else if (mode == AttackMode.Parabolic)
+                {
+                    target = hit.transform.position;
+                    float xdistance;
+                    xdistance = target.x - throwPoint.position.x;
+
+                    float ydistance;
+                    ydistance = target.y - throwPoint.position.y;
+
+                    float throwAngle;
+
+                    throwAngle = Mathf.Atan((ydistance + 4.905f * (timeTillHit * timeTillHit)) / xdistance);
+
+                    float totalValue = xdistance / (Mathf.Cos(throwAngle) * timeTillHit);
+
+                    float xValue, yValue;
+                    xValue = totalValue * Mathf.Cos(throwAngle);
+                    yValue = totalValue * Mathf.Sin(throwAngle);
+
+                    bulletrig.velocity = new Vector3(xValue * speed, yValue * speed);
+
+                    
+                }
+                break;
+            }
         }
-        else if(mode == AttackMode.Parabolic)
-        {
-            target = hit.transform.position;
-            float xdistance;
-            xdistance = target.x - throwPoint.position.x;
-
-            float ydistance;
-            ydistance = target.y - throwPoint.position.y;
-
-            float throwAngle;
-
-            throwAngle = Mathf.Atan((ydistance + 4.905f * (timeTillHit * timeTillHit)) / xdistance);
-
-            float totalValue = xdistance / (Mathf.Cos(throwAngle) * timeTillHit);
-
-            float xValue, yValue;
-            xValue = totalValue * Mathf.Cos(throwAngle);
-            yValue = totalValue * Mathf.Sin(throwAngle);
-
-            GameObject bulletInstance = Instantiate(bulletPrefab, throwPoint.position, 
-                Quaternion.Euler(new Vector3(0, 0, 0))) as GameObject;
-
-            Rigidbody2D rigid;
-            rigid = bulletInstance.GetComponent<Rigidbody2D>();
-            rigid.velocity = new Vector2(xValue * speed, yValue * speed);
-        }
+        
         
     }
     private void OnDrawGizmos()

@@ -10,7 +10,8 @@ public class PBullet : MonoBehaviour {
         if (other.tag == "Enemy")
         {
             other.GetComponent<Enemy>().TakeDamage(damage);
-            Destroy(this.gameObject);
+            gameObject.SetActive(false);
         }
     }
+   
 }

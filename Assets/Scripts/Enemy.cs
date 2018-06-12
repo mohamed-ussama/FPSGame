@@ -16,7 +16,7 @@ public class Enemy : MonoBehaviour
         {
             startShooting.value = false;
             startSearching.value = true;
-            Destroy(this.gameObject);
+           // Destroy(this.gameObject);
         }
     }
 
